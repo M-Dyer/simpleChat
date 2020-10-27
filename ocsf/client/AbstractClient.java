@@ -268,6 +268,7 @@ public abstract class AbstractClient implements Runnable {
 	 * attempting to reconnect.
 	 */
 	protected void connectionClosed() {
+		System.out.println("We have quit");
 	}
 
 	/**

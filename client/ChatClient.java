@@ -64,10 +64,89 @@ public class ChatClient extends AbstractClient
    *
    * @param message The message from the UI.    
    */
+  public void command(String message)
+  {
+    String m[];
+    m=message.split(" ");
+    if (m[0].charAt(0)=='#')
+      {
+        if (m[0].equals("#quit"))
+        {
+          quit();
+        }
+
+        else if (m[0].equals("#logoff"))
+        {
+          try
+          {
+            closeConnection();
+          }
+          catch (IOException e)
+          {}
+        }
+
+        else if (m[0].equals("#sethost"))
+        {
+          if (!isConnected())
+          {
+            setHost(m[1]);
+          }
+          else
+          {
+              clientUI.display("You can't do that while connected");
+          }
+        }
+
+        else if (m[0].equals("#setport"))
+        {
+          if (!isConnected())
+          {
+            setPort(Integer.parseInt(m[1]));
+          }
+          else
+          {
+              clientUI.display("You can't do that while connected");
+          }
+        }
+
+        else if (m[0].equals("#login"))
+        {
+          if (!isConnected())
+          {
+            try
+            {
+              openConnection();
+            }
+            
+            catch (IOException e)
+            {}
+  
+          }
+          else
+          {
+              clientUI.display("You can't do that while connected");
+          }
+        }
+
+        else if (m[0].equals("#gethost"))
+        {
+          clientUI.display(getHost());
+        }
+
+        else if (m[0].equals("#getport"))
+        {
+          clientUI.display(getPort()+"");
+        }
+      }
+  }
   public void handleMessageFromClientUI(String message)
   {
     try
     {
+      if (message.charAt(0)=='#')
+      {
+        command(message);
+      }
       sendToServer(message);
     }
     catch(IOException e)
@@ -77,7 +156,21 @@ public class ChatClient extends AbstractClient
       quit();
     }
   }
-  
+  @Override
+
+  protected void connectionException(Exception exception) {
+
+    super.connectionException(exception);
+
+    clientUI.display("Server has shut down");
+		quit();
+  }
+
+  @Override
+  protected void connectionClosed() {
+    super.connectionClosed();
+    clientUI.display("Client has quit");
+  }
   /**
    * This method terminates the client.
    */
